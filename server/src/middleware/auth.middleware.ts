@@ -12,7 +12,7 @@ export const authenticate = (
 ) => {
   try {
     const authHeader = req.headers.authorization;
-    console.log("rhsr", authHeader);
+    
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({

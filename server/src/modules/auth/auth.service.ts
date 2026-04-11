@@ -11,7 +11,7 @@ import { users } from "../../db/schema/users.schema.js";
 export const signupService = async (data: SignupInput) => {
   try {
     // 👉 here you will later connect DB (Drizzle/Prisma)
-    console.log("im inside service");
+
     //1. check user is exist or not through email
     //2. if exist then throw error else hash the  provided password usong bcrypt.hash
     //3. AFTER password hash store it in database once it stored in db then get the newly created uid and create jwt token and release response
@@ -22,11 +22,11 @@ export const signupService = async (data: SignupInput) => {
       .select()
       .from(users)
       .where(eq(users.email, email));
-    console.log("existing user data", existingUser);
+
     if (existingUser) {
       throw new Error("User already exists with this email");
     }
-    console.log("after validating email");
+
     // ✅ 2. Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -42,8 +42,6 @@ export const signupService = async (data: SignupInput) => {
       })
       .returning();
 
-    console.log("after creating user", newUser);
-
     // ✅ 4. Generate JWT token
     const token = jwt.sign(
       { userId: newUser!.id, role: newUser!.role },
@@ -52,7 +50,7 @@ export const signupService = async (data: SignupInput) => {
         expiresIn: "1h",
       },
     );
-    console.log("token", token);
+
     //✅ 5. Return response
     return {
       user: newUser,
@@ -103,8 +101,6 @@ export const loginService = async (data: LoginInput) => {
     throw new Error(error.message || "Login failed");
   }
 };
-
-
 
 export const getProfileService = async (userId: number) => {
   try {

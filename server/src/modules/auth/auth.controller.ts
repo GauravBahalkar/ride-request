@@ -45,9 +45,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
-    console.log("inside controller");
     const userId = req.user?.userId;
-    console.log("userid", userId);
 
     const user = await getProfileService(userId);
 
