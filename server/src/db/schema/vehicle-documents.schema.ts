@@ -13,7 +13,7 @@ export const vehicleDocumentTypeEnum = pgEnum("vehicle_document_type", [
   "puc",
   "insurance",
 ]);
-export const vehicleStatusEnum = pgEnum("vehicle_status", [
+export const vehicleDocumentStatusEnum = pgEnum("vehicle_document_status", [
   "pending",
   "verified",
 ]);
@@ -25,7 +25,9 @@ export const vehicleDocuments = pgTable("vehicle_documetns", {
   vehicleDocumentType: vehicleDocumentTypeEnum(
     "vehicle_document_type",
   ).notNull(),
-  vehicleStatus: vehicleStatusEnum("vehicle_status").notNull(),
+  vehicleDocumentStatus: vehicleDocumentStatusEnum(
+    "vehicle_document_status",
+  ).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
