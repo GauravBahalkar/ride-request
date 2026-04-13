@@ -15,6 +15,13 @@
       "when": 1776061855035,
       "tag": "0001_curly_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776078652701,
+      "tag": "0002_moaning_power_man",
+      "breakpoints": true
     }
   ]
 }

@@ -13,6 +13,7 @@ import { vehicles } from "./vehicle.schema.js";
 import { bookingRequests } from "./booking-requests.schema.js";
 
 export const bookingRequestEnum = pgEnum("booking_request", [
+  "pending",
   "confirmed",
   "cancelled",
 ]);
