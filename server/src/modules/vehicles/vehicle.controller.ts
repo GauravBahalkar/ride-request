@@ -18,13 +18,13 @@ import {
 
 export const createVehicle = async (req: AuthRequest, res: Response) => {
   try {
-    // ✅ Validate request body
+    // Validate request body
     const data = req.body;
 
-    // ✅ Get vendor from auth middleware
+    // Get vendor from auth middleware
     const vendorId = req.user?.userId;
 
-    // ✅ Call service
+    // Call service
     const vehicle = await createVehicleService(data, vendorId);
 
     return res.status(201).json({
@@ -45,7 +45,7 @@ export const updateVehicle = async (req: AuthRequest, res: Response) => {
   try {
     const vehicleId = Number(req.params.id);
 
-    // ✅ Validate request body
+    // Validate request body
     const data = req.body;
 
     const vendorId = req.user.userId;
@@ -69,11 +69,7 @@ export const updateVehicle = async (req: AuthRequest, res: Response) => {
   }
 };
 
-
-
-
-
-// 🔹 GET ALL (Vendor)
+//  GET ALL (Vendor)
 export const getVendorVehicles = async (req: AuthRequest, res: Response) => {
   try {
     const vendorId = req.user?.userId;
@@ -93,19 +89,13 @@ export const getVendorVehicles = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// 🔹 GET BY ID (Vendor)
-export const getVendorVehicleById = async (
-  req: AuthRequest,
-  res: Response
-) => {
+//  GET BY ID (Vendor)
+export const getVendorVehicleById = async (req: AuthRequest, res: Response) => {
   try {
     const vendorId = req.user?.userId;
     const vehicleId = Number(req.params.id);
 
-    const vehicle = await getVendorVehicleByIdService(
-      vehicleId,
-      vendorId
-    );
+    const vehicle = await getVendorVehicleByIdService(vehicleId, vendorId);
 
     return res.status(200).json({
       success: true,
@@ -120,7 +110,7 @@ export const getVendorVehicleById = async (
   }
 };
 
-// 🔹 DELETE (Vendor)
+//  DELETE (Vendor)
 export const deleteVehicle = async (req: AuthRequest, res: Response) => {
   try {
     const vendorId = req.user?.userId;

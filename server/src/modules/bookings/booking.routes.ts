@@ -11,18 +11,28 @@ import {
 } from "./booking.controller.js";
 
 import { authenticate } from "../../middleware/auth.middleware.js";
+import { validate } from "../../middleware/validate.middleware.js";
+import {
+  createBookingRequestSchema,
+  updateRequestSchema,
+} from "./booking.schema.js";
 
 const router = express.Router();
 
 // =========================
-// ✅ USER ROUTES
+// USER ROUTES
 // =========================
 
 // Create booking request
-router.post("/", authenticate, createRequest);
+router.post(
+  "/request",
+  authenticate,
+  validate(createBookingRequestSchema),
+  createRequest,
+);
 
 // Get user bookings
-router.get("/", authenticate, getBookings);
+router.get("/request", authenticate, getBookings);
 
 // Get user booking by id
 router.get("/:id", authenticate, getBookingById);
@@ -34,7 +44,7 @@ router.patch("/:id/cancel", authenticate, cancelBooking);
 router.get("/requests/all", authenticate, getRequests);
 
 // =========================
-// ✅ VENDOR ROUTES
+//VENDOR ROUTES
 // =========================
 
 // Get vendor bookings
@@ -44,6 +54,11 @@ router.get("/vendor/bookings", authenticate, getVendorBookings);
 router.get("/vendor/requests", authenticate, getVendorRequests);
 
 // Accept / Reject request
-router.patch("/request/:id", authenticate, handleRequest);
+router.patch(
+  "/request/:id",
+  authenticate,
+  validate(updateRequestSchema),
+  handleRequest,
+);
 
 export default router;

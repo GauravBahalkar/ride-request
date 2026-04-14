@@ -7,11 +7,11 @@ import { bookingRequests } from "../../db/schema/booking-requests.schema.js";
 import { eq, and, lt, gt } from "drizzle-orm";
 
 // =========================
-// ✅ CREATE BOOKING REQUEST
+//  CREATE BOOKING REQUEST
 // =========================
 export const createBookingRequestService = async (
   userId: number,
-  data: any
+  data: any,
 ) => {
   const { vehicleId, startDate, endDate } = data;
 
@@ -37,8 +37,8 @@ export const createBookingRequestService = async (
         eq(bookingRequests.vehicleId, vehicleId),
         eq(bookingRequests.status, "pending"),
         lt(bookingRequests.dateFrom, new Date(endDate)),
-        gt(bookingRequests.dateTo, new Date(startDate))
-      )
+        gt(bookingRequests.dateTo, new Date(startDate)),
+      ),
     );
 
   if (conflict) {
@@ -62,12 +62,12 @@ export const createBookingRequestService = async (
 };
 
 // =========================
-// ✅ VENDOR ACCEPT / REJECT
+//  VENDOR ACCEPT / REJECT
 // =========================
 export const handleBookingRequestService = async (
   requestId: number,
   vendorId: number,
-  status: "accepted" | "rejected"
+  status: "accepted" | "rejected",
 ) => {
   const [request] = await db
     .select()
@@ -94,9 +94,9 @@ export const handleBookingRequestService = async (
     .from(vehicles)
     .where(eq(vehicles.id, request.vehicleId!));
 
-    if (!vehicle) {
-  throw new Error("Vehicle not found");
-}
+  if (!vehicle) {
+    throw new Error("Vehicle not found");
+  }
 
   const days =
     (new Date(request.dateTo).getTime() -
@@ -116,7 +116,7 @@ export const handleBookingRequestService = async (
       dateTo: request.dateTo,
       totalPrice: totalPrice.toString(),
       bookingStatus: "confirmed",
-      paymentStatus: "pending",
+      paymentStatus: "paid",
       destination: "To be updated",
     })
     .returning();
@@ -125,25 +125,25 @@ export const handleBookingRequestService = async (
 };
 
 // =========================
-// ✅ GET USER BOOKINGS
+//  GET USER BOOKINGS
 // =========================
 export const getUserBookingsService = async (userId: number) => {
   return db.select().from(bookings).where(eq(bookings.userId, userId));
 };
 
 // =========================
-// ✅ GET VENDOR BOOKINGS
+//  GET VENDOR BOOKINGS
 // =========================
 export const getVendorBookingsService = async (vendorId: number) => {
   return db.select().from(bookings).where(eq(bookings.vendorId, vendorId));
 };
 
 // =========================
-// ✅ GET BOOKING BY ID
+//  GET BOOKING BY ID
 // =========================
 export const getBookingByIdService = async (
   bookingId: number,
-  userId: number
+  userId: number,
 ) => {
   const [booking] = await db
     .select()
@@ -158,12 +158,12 @@ export const getBookingByIdService = async (
 };
 
 // =========================
-// ✅ UPDATE BOOKING
+//  UPDATE BOOKING
 // =========================
 export const updateBookingService = async (
   bookingId: number,
   userId: number,
-  data: any
+  data: any,
 ) => {
   const [booking] = await db
     .select()
@@ -184,11 +184,11 @@ export const updateBookingService = async (
 };
 
 // =========================
-// ✅ CANCEL BOOKING
+//  CANCEL BOOKING
 // =========================
 export const cancelBookingService = async (
   bookingId: number,
-  userId: number
+  userId: number,
 ) => {
   const [updated] = await db
     .update(bookings)
@@ -200,7 +200,7 @@ export const cancelBookingService = async (
 };
 
 // =========================
-// ✅ GET ALL REQUESTS (USER)
+// GET ALL REQUESTS (USER)
 // =========================
 export const getUserRequestsService = async (userId: number) => {
   return db
@@ -210,7 +210,7 @@ export const getUserRequestsService = async (userId: number) => {
 };
 
 // =========================
-// ✅ GET VENDOR REQUESTS
+//  GET VENDOR REQUESTS
 // =========================
 export const getVendorRequestsService = async (vendorId: number) => {
   return db
@@ -220,7 +220,7 @@ export const getVendorRequestsService = async (vendorId: number) => {
 };
 
 // =========================
-// ✅ GET REQUEST BY ID
+//  GET REQUEST BY ID
 // =========================
 export const getRequestByIdService = async (id: number) => {
   const [req] = await db

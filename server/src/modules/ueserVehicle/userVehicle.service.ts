@@ -4,7 +4,7 @@ import { vehicles } from "../../db/schema/vehicle.schema.js";
 
 import { eq, and, ilike, gte, lte } from "drizzle-orm";
 
-// ✅ Get Profile
+// Get Profile
 export const getProfileService = async (userId: number) => {
   console.log("userid", userId);
   const [user] = await db.select().from(users).where(eq(users.id, userId));
@@ -14,9 +14,8 @@ export const getProfileService = async (userId: number) => {
   return user;
 };
 
-// ✅ Update Profile
+//  Update Profile
 export const updateProfileService = async (userId: number, data: any) => {
-
   const [updatedUser] = await db
     .update(users)
     .set({ ...data, updatedAt: new Date() })
@@ -26,7 +25,7 @@ export const updateProfileService = async (userId: number, data: any) => {
   return updatedUser;
 };
 
-// ✅ Get Vehicles (User side with filters)
+//  Get Vehicles (User side with filters)
 export const getUserVehiclesService = async (filters: any) => {
   const conditions = [
     eq(vehicles.isAvailable, true),

@@ -27,7 +27,7 @@ router.put(
   updateVehicle,
 );
 
-// 🔐 Vendor routes
+//  Vendor routes
 router.get("/my-vehicles", authenticate, getVendorVehicles);
 
 router.get("/my-vehicles/:id", authenticate, getVendorVehicleById);

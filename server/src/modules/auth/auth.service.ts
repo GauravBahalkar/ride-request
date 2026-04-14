@@ -16,7 +16,7 @@ export const signupService = async (data: SignupInput) => {
     //2. if exist then throw error else hash the  provided password usong bcrypt.hash
     //3. AFTER password hash store it in database once it stored in db then get the newly created uid and create jwt token and release response
     const { name, email, password, role } = data;
-    // ✅ 1. Check if user already exists
+    //   Check if user already exists
 
     const [existingUser] = await db
       .select()
@@ -27,10 +27,10 @@ export const signupService = async (data: SignupInput) => {
       throw new Error("User already exists with this email");
     }
 
-    // ✅ 2. Hash password
+    //  Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ 3. Insert user into DB
+    //  Insert user into DB
 
     const [newUser] = await db
       .insert(users)
@@ -42,7 +42,7 @@ export const signupService = async (data: SignupInput) => {
       })
       .returning();
 
-    // ✅ 4. Generate JWT token
+    //  Generate JWT token
     const token = jwt.sign(
       { userId: newUser!.id, role: newUser!.role },
       process.env.JWT_SECRET!,
@@ -51,7 +51,7 @@ export const signupService = async (data: SignupInput) => {
       },
     );
 
-    //✅ 5. Return response
+    // Return response
     return {
       user: newUser,
       token,
@@ -67,14 +67,14 @@ export const loginService = async (data: LoginInput) => {
   try {
     const { email, password } = data;
 
-    // 1. Check user exists (email)
+    //  Check user exists (email)
     const [user] = await db.select().from(users).where(eq(users.email, email));
 
     if (!user) {
       throw new Error("Invalid email or password");
     }
 
-    // 2. Compare password (bcrypt.compare)
+    //  Compare password (bcrypt.compare)
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -92,7 +92,7 @@ export const loginService = async (data: LoginInput) => {
     // 4. Return safe user + token
     const { password: _, ...safeUser } = user;
 
-    // ✅ 5. Return response
+    //  Return response
     return {
       user: safeUser,
       token,
