@@ -1,1 +1,0 @@
-ALTER TYPE "public"."booking_request" ADD VALUE 'pending' BEFORE 'confirmed';

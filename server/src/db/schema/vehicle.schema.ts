@@ -34,8 +34,6 @@ export const vehicles = pgTable("vehicles", {
 
   location: varchar("location", { length: 100 }).notNull(),
 
-  imageUrl: text("image_url").notNull(),
-
   isAvailable: boolean("is_available").default(true),
 
   status: vehicleStatusEnum("status").default("active"),
@@ -48,5 +46,4 @@ export const vehicles = pgTable("vehicles", {
   createdAt: timestamp("created_at").defaultNow(),
 
   updatedAt: timestamp("updated_at").defaultNow(),
-  
 });
