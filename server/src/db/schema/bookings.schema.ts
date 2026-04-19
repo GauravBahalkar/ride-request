@@ -6,6 +6,7 @@ import {
   serial,
   timestamp,
   varchar,
+  index,
 } from "drizzle-orm/pg-core";
 
 import { users } from "./users.schema.js";
@@ -34,7 +35,7 @@ export const bookings = pgTable("bookings", {
     () => bookingRequests.id,
   ),
 
-  bookingStatus: bookingRequestEnum("booking_status").notNull(),
+  bookingStatus: varchar("booking_status", { length: 30 }).notNull().default("pending"),
 
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
 
@@ -43,8 +44,14 @@ export const bookings = pgTable("bookings", {
 
   destination: varchar("destination", { length: 255 }).notNull(),
 
-  paymentStatus: paymentStatusEnum("payment_status").notNull(),
+  paymentStatus: varchar("payment_status", { length: 30 }).notNull().default("pending"),
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+}, (table) => {
+  return {
+    userIdIdx: index("user_id_idx").on(table.userId),
+    vehicleIdIdx: index("vehicle_id_idx").on(table.vehicleId),
+    statusIdx: index("status_idx").on(table.bookingStatus),
+  };
 });

@@ -17,7 +17,9 @@ export const userDocuments = pgTable(
   "user_documents",
   {
     id: serial("id").primaryKey(),
-    userId: integer("user_id").references(() => users.id),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
     documentType: documentTypeEnum("document_type").notNull(),
     documentnUrl: text("document_url").notNull(),
     status: statusEnum("status").notNull(),

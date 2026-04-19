@@ -11,6 +11,7 @@ import {
 } from "./booking.controller.js";
 
 import { authenticate } from "../../middleware/auth.middleware.js";
+import { requireRole } from "../../middleware/role.middleware.js";
 import { validate } from "../../middleware/validate.middleware.js";
 import {
   createBookingRequestSchema,
@@ -32,7 +33,7 @@ router.post(
 );
 
 // Get user bookings
-router.get("/request", authenticate, getBookings);
+router.get("/", authenticate, getBookings);
 
 // Get user booking by id
 router.get("/:id", authenticate, getBookingById);
@@ -48,15 +49,26 @@ router.get("/requests/all", authenticate, getRequests);
 // =========================
 
 // Get vendor bookings
-router.get("/vendor/bookings", authenticate, getVendorBookings);
+router.get(
+  "/vendor/bookings",
+  authenticate,
+  requireRole("vendor"),
+  getVendorBookings,
+);
 
 // Get vendor booking requests
-router.get("/vendor/requests", authenticate, getVendorRequests);
+router.get(
+  "/vendor/requests",
+  authenticate,
+  requireRole("vendor"),
+  getVendorRequests,
+);
 
 // Accept / Reject request
 router.patch(
   "/request/:id",
   authenticate,
+  requireRole("vendor"),
   validate(updateRequestSchema),
   handleRequest,
 );

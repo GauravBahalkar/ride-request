@@ -129,3 +129,24 @@ export const deleteVehicle = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
+export const getVehicleById = async (req: Request, res: Response) => {
+  try {
+    const vehicleId = Number(req.params.id);
+    const vehicleArray = await db.select().from(vehicles).where(eq(vehicles.id, vehicleId));
+    
+    if (!vehicleArray.length) {
+      return res.status(404).json({ success: false, message: "Vehicle not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: vehicleArray[0],
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
+  }
+};

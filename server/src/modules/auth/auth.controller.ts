@@ -16,10 +16,11 @@ export const signup = async (req: Request, res: Response) => {
       message: "User registered successfully",
       data: user,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Signup Error:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: error.message || "Internal Server Error",
     });
   }
 };
@@ -35,10 +36,11 @@ export const login = async (req: Request, res: Response) => {
       message: "User login  successfully",
       data: user,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Login Error:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: error.message || "Internal Server Error",
     });
   }
 };

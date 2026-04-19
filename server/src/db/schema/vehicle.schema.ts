@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
   pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const vehicleTypeEnum = pgEnum("vehicle_type", [
@@ -34,16 +35,22 @@ export const vehicles = pgTable("vehicles", {
 
   location: varchar("location", { length: 100 }).notNull(),
 
-  isAvailable: boolean("is_available").default(true),
+  isAvailable: boolean("is_available").notNull().default(true),
 
-  status: vehicleStatusEnum("status").default("active"),
+  status: text("status").notNull().default("active"),
 
   // JSON-like string
   features: text("features"),
+
+  imageUrl: text("image_url").notNull().default(""),
 
   vendorId: integer("vendor_id").notNull(),
 
   createdAt: timestamp("created_at").defaultNow(),
 
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    vendorIdIdx: index("vendor_id_idx").on(table.vendorId),
+  };
 });

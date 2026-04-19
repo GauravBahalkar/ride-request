@@ -4,7 +4,7 @@ import { vehicles } from "../../db/schema/vehicle.schema.js";
 import { users } from "../../db/schema/users.schema.js";
 import { bookingRequests } from "../../db/schema/booking-requests.schema.js";
 
-import { eq, and, lt, gt } from "drizzle-orm";
+import { eq, and, lt, gt, desc } from "drizzle-orm";
 
 // =========================
 //  CREATE BOOKING REQUEST
@@ -26,6 +26,10 @@ export const createBookingRequestService = async (
 
   if (!vehicle || !vehicle.isAvailable) {
     throw new Error("Vehicle not available");
+  }
+
+  if (vehicle.vendorId === userId) {
+    throw new Error("You cannot book your own vehicle");
   }
 
   // 🔥 conflict check
@@ -128,7 +132,28 @@ export const handleBookingRequestService = async (
 //  GET USER BOOKINGS
 // =========================
 export const getUserBookingsService = async (userId: number) => {
-  return db.select().from(bookings).where(eq(bookings.userId, userId));
+  return db
+    .select({
+      id: bookings.id,
+      status: bookings.bookingStatus,
+      startDate: bookings.dateFrom,
+      endDate: bookings.dateTo,
+      totalPrice: bookings.totalPrice,
+      createdAt: bookings.createdAt,
+      vehicle: {
+        id: vehicles.id,
+        vehicleName: vehicles.vehicleName,
+        vehicleType: vehicles.vehicleType,
+        vehicleCapacity: vehicles.vehicleCapacity,
+        pricePerDay: vehicles.pricePerDay,
+        imageUrl: vehicles.imageUrl,
+        location: vehicles.location,
+      },
+    })
+    .from(bookings)
+    .leftJoin(vehicles, eq(bookings.vehicleId, vehicles.id))
+    .where(eq(bookings.userId, userId))
+    .orderBy(desc(bookings.createdAt));
 };
 
 // =========================
@@ -190,6 +215,19 @@ export const cancelBookingService = async (
   bookingId: number,
   userId: number,
 ) => {
+  const [booking] = await db
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, bookingId));
+
+  if (!booking || booking.userId !== userId) {
+    throw new Error("Booking not found or unauthorized");
+  }
+
+  if (booking.bookingStatus === "cancelled") {
+    throw new Error("Booking is already cancelled");
+  }
+
   const [updated] = await db
     .update(bookings)
     .set({ bookingStatus: "cancelled" })
@@ -203,10 +241,29 @@ export const cancelBookingService = async (
 // GET ALL REQUESTS (USER)
 // =========================
 export const getUserRequestsService = async (userId: number) => {
-  return db
-    .select()
+  const result = await db
+    .select({
+      id: bookingRequests.id,
+      status: bookingRequests.status,
+      startDate: bookingRequests.dateFrom,
+      endDate: bookingRequests.dateTo,
+      createdAt: bookingRequests.createdAt,
+      vehicle: {
+        id: vehicles.id,
+        vehicleName: vehicles.vehicleName,
+        vehicleType: vehicles.vehicleType,
+        vehicleCapacity: vehicles.vehicleCapacity,
+        pricePerDay: vehicles.pricePerDay,
+        imageUrl: vehicles.imageUrl,
+        location: vehicles.location,
+      },
+    })
     .from(bookingRequests)
-    .where(eq(bookingRequests.userId, userId));
+    .leftJoin(vehicles, eq(bookingRequests.vehicleId, vehicles.id))
+    .where(eq(bookingRequests.userId, userId))
+    .orderBy(desc(bookingRequests.createdAt));
+
+  return result;
 };
 
 // =========================

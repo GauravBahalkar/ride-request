@@ -33,7 +33,7 @@ export const vehicleDocuments = pgTable(
     ).notNull(),
     vehicleDocumentUrl: text("document_url").notNull(), // 🔥 REQUIRED
 
-    vehicleDocumentPublicId: text("document_public_id"), // for cloudinary delete
+    vehicleDocumentPublicId: text("document_public_id").notNull(), // for cloudinary delete
     vehicleDocumentStatus: vehicleDocumentStatusEnum("vehicle_document_status")
       .default("pending")
       .notNull(),
@@ -41,10 +41,12 @@ export const vehicleDocuments = pgTable(
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   },
-  (table) => ({
-    uniqueVehicleDoc: uniqueIndex("unique_vehicle_document").on(
-      table.vehicleId,
+  (table) => {
+    return {
+      uniqueUserDoc: uniqueIndex("unique_vehicle_document").on(
+       table.vehicleId,
       table.vehicleDocumentType,
-    ),
-  }),
+      ),
+    };
+  },
 );

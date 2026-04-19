@@ -4,6 +4,7 @@ import {
   pgTable,
   serial,
   timestamp,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { users } from "./users.schema.js";
 import { vehicles } from "./vehicle.schema.js";
@@ -22,7 +23,7 @@ export const bookingRequests = pgTable("booking_requests", {
   vendorId: integer("vendor_id").references(() => users.id),
   dateFrom: timestamp("date_from", { mode: "date" }).notNull(),
   dateTo: timestamp("date_to", { mode: "date" }).notNull(),
-  status: bookingStatusEnum("status").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
   expiresAt: timestamp("expires_at").defaultNow(),

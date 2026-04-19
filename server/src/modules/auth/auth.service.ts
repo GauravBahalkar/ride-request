@@ -47,7 +47,7 @@ export const signupService = async (data: SignupInput) => {
       { userId: newUser!.id, role: newUser!.role },
       process.env.JWT_SECRET!,
       {
-        expiresIn: "1h",
+        expiresIn: "7d",
       },
     );
 
@@ -85,7 +85,7 @@ export const loginService = async (data: LoginInput) => {
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET!,
       {
-        expiresIn: "1h",
+        expiresIn: "7d",
       },
     );
 

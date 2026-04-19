@@ -15,6 +15,20 @@
       "when": 1776523814051,
       "tag": "0001_illegal_cable",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776606029255,
+      "tag": "0002_simple_genesis",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1776611390683,
+      "tag": "0003_sharp_princess_powerful",
+      "breakpoints": true
     }
   ]
 }
