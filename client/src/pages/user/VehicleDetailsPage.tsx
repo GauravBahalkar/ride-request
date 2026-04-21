@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CalendarDays, MapPin, Star, Users } from 'lucide-react'
+import { CalendarDays, MapPin, Star, Users, CheckCircle2 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../hooks/useAuth'
@@ -178,10 +178,18 @@ export const VehicleDetailsPage = () => {
         <p className="mt-2 text-slate-600">
           Premium ride for the ultimate journey experience. Enjoy comfort, performance, and reliability.
         </p>
-        <h2 className="mt-6 text-2xl font-semibold text-slate-900">Features</h2>
-        <div className="mt-3 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
-          {features.map((feature) => (
-            <p key={feature}>- {feature}</p>
+        <h2 className="mt-8 text-2xl font-black text-slate-900">Premium Features</h2>
+        <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+          {features.map((feature, i) => (
+            <div 
+              key={i} 
+              className="group flex flex-col items-center justify-center rounded-[2rem] border border-slate-100 bg-slate-50 p-6 transition-all hover:bg-white hover:shadow-2xl hover:shadow-indigo-100 hover:-translate-y-1"
+            >
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm group-hover:scale-110 transition-transform">
+                <CheckCircle2 className="text-indigo-600" size={20} />
+              </div>
+              <p className="text-center text-sm font-bold text-slate-700">{feature}</p>
+            </div>
           ))}
         </div>
       </article>

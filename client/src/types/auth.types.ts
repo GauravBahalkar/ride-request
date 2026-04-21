@@ -6,6 +6,7 @@ export interface User {
   email: string
   role: UserRole
   mobileNo?: string | null
+  profilePhoto?: string | null
 }
 
 export interface AuthPayload {

@@ -8,10 +8,15 @@ import {
   LayoutGrid,
   Plus,
   Trash2,
+  Upload,
+  Image as ImageIcon,
+  X
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { bookingApi } from '../../services/booking.api'
 import { vehicleApi } from '../../services/vehicle.api'
+import { documentApi } from '../../services/document.api'
+
 import type { BookingRequest } from '../../types/booking.types'
 import type { Vehicle, VehicleType } from '../../types/vehicle.types'
 import { SkeletonLoader } from '../../components/ui/SkeletonLoader'
@@ -131,6 +136,23 @@ export const VendorDashboardPage = () => {
     }
   }
 
+  const handleImageUpload = async (vehicleId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setSubmitting(true)
+      const uploadedImage = await documentApi.uploadVehicleImage(file, vehicleId, 'front')
+      // Update local state if needed or show success
+      alert('Image uploaded successfully!')
+      loadData()
+    } catch (err) {
+      handleApiError(err)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const deleteVehicle = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this vehicle?')) {
       try {
@@ -152,7 +174,7 @@ export const VendorDashboardPage = () => {
     <section className="page-enter overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="grid md:grid-cols-[240px,1fr]">
         <aside className="border-r border-slate-200 bg-[#fcfcff] p-4">
-          <h2 className="text-4xl font-bold text-slate-900">RentDrive Dashboard</h2>
+          <h2 className="text-4xl font-bold text-slate-900">Ride-Request Dashboard</h2>
           <div className="mt-8 space-y-1 text-sm">
             <button
               onClick={() => setTab('overview')}
@@ -319,14 +341,76 @@ export const VendorDashboardPage = () => {
                     />
                   </div>
                   <div>
-                    <p className="mb-1 text-sm text-slate-600">Image URL</p>
-                    <input
-                      required
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                      placeholder="https://example.com/image.jpg"
-                      value={form.imageUrl}
-                      onChange={(event) => setForm((prev) => ({ ...prev, imageUrl: event.target.value }))}
-                    />
+                    <p className="mb-1 text-sm text-slate-600">Vehicle Image</p>
+                    <div 
+                      className={`relative flex min-h-[160px] flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all ${
+                        form.imageUrl ? 'border-emerald-200 bg-emerald-50' : 'border-slate-300 bg-slate-50 hover:border-indigo-400 hover:bg-slate-100'
+                      }`}
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onDrop={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) {
+                          try {
+                            setSubmitting(true);
+                            const res = await documentApi.uploadVehicleImage(file, editingVehicle?.id, 'front');
+                            setForm(prev => ({ ...prev, imageUrl: res.imageUrl || res.secure_url }));
+                          } catch (err) {
+                            handleApiError(err);
+                          } finally {
+                            setSubmitting(false);
+                          }
+                        }
+                      }}
+                    >
+                      {form.imageUrl ? (
+                        <div className="group relative h-full w-full p-2">
+                          <img src={form.imageUrl} alt="Preview" className="h-32 w-full rounded-xl object-cover" />
+                          <button 
+                            type="button"
+                            onClick={() => setForm(prev => ({ ...prev, imageUrl: '' }))}
+                            className="absolute right-4 top-4 rounded-full bg-rose-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 shadow-lg"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 p-6">
+                          <div className="rounded-full bg-indigo-100 p-3 text-indigo-600">
+                            <Upload size={24} />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm font-semibold text-slate-900">Click or drag image to upload</p>
+                            <p className="text-xs text-slate-500">PNG, JPG or WebP (max. 5MB)</p>
+                          </div>
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  setSubmitting(true);
+                                  const res = await documentApi.uploadVehicleImage(file, editingVehicle?.id, 'front');
+                                  setForm(prev => ({ ...prev, imageUrl: res.imageUrl || res.secure_url }));
+                                } catch (err) {
+                                  handleApiError(err);
+                                } finally {
+                                  setSubmitting(false);
+                                }
+                              }
+                            }}
+                          />
+                        </label>
+                      )}
+                      {submitting && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/60 backdrop-blur-sm">
+                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <p className="mb-1 text-sm text-slate-600">Features (comma-separated)</p>
@@ -405,7 +489,17 @@ export const VendorDashboardPage = () => {
                           >
                             <Trash2 size={14} />
                           </button>
+                          <label className="cursor-pointer rounded-md p-1 text-emerald-500 hover:bg-emerald-50" title="Upload Image">
+                            <Plus size={14} />
+                            <input
+                              type="file"
+                              className="hidden"
+                              onChange={(e) => handleImageUpload(vehicle.id, e)}
+                              accept="image/*"
+                            />
+                          </label>
                         </td>
+
                       </tr>
                     ))}
                   </tbody>

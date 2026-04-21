@@ -1,5 +1,5 @@
-import { useMemo, useState, useRef } from 'react'
-import { IdCard, Upload, UserCircle2, Camera } from 'lucide-react'
+import { useEffect, useMemo, useState, useRef } from 'react'
+import { IdCard, Upload, UserCircle2, Camera, ExternalLink, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { useAuth } from '../../hooks/useAuth'
 import { userApi } from '../../services/user.api'
@@ -7,10 +7,12 @@ import { documentApi } from '../../services/document.api'
 import { handleApiError } from '../../utils/handleApiError'
 import { toast } from 'sonner'
 
-type DocumentItem = {
-  id: string
-  label: string
-  fileName: string
+type UserDocument = {
+  id: number
+  documentType: 'aadhar' | 'license'
+  documentUrl: string
+  status: 'pending' | 'verified' | 'rejected'
+  rejectionReason?: string
 }
 
 export const ProfilePage = () => {
@@ -20,16 +22,30 @@ export const ProfilePage = () => {
   const [saving, setSaving] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [message, setMessage] = useState('')
-  const [documents, setDocuments] = useState<DocumentItem[]>([])
+  const [userDocs, setUserDocs] = useState<UserDocument[]>([])
+  const [loadingDocs, setLoadingDocs] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
-  const requiredDocs = useMemo(
-    () =>
-      user?.role === 'vendor'
-        ? ['Aadhaar Card', 'Driving License']
-        : ['Aadhaar Card', 'Driving License'],
-    [user?.role],
-  )
+  const fetchUserDocs = async () => {
+    try {
+      setLoadingDocs(true)
+      const docs = await documentApi.getUserDocuments()
+      setUserDocs(docs)
+    } catch (err) {
+      handleApiError(err)
+    } finally {
+      setLoadingDocs(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserDocs()
+  }, [])
+
+  const requiredDocs = [
+    { label: 'Aadhaar Card', type: 'aadhar' },
+    { label: 'Driving License', type: 'license' },
+  ]
 
   if (!user) return null
 
@@ -63,18 +79,28 @@ export const ProfilePage = () => {
     }
   }
 
-  const uploadDocument = async (label: string, file?: File) => {
+  const uploadDocument = async (type: string, label: string, file?: File) => {
     if (!file) return
     try {
-      const docType = label.toLowerCase().includes('aadhaar') ? 'aadhar' : 'license'
-      await documentApi.uploadUserDocument(docType, file)
-      setDocuments((prev) => [
-        ...prev.filter((item) => item.label !== label),
-        { id: label, label, fileName: file.name },
-      ])
+      toast.loading(`Uploading ${label}...`)
+      await documentApi.uploadUserDocument(type, file)
+      await fetchUserDocs()
+      toast.dismiss()
       toast.success(`${label} uploaded successfully.`)
     } catch (err) {
+      toast.dismiss()
       handleApiError(err)
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'verified':
+        return <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded-full"><CheckCircle size={12} /> Verified</span>
+      case 'rejected':
+        return <span className="inline-flex items-center gap-1 text-rose-600 font-bold text-xs bg-rose-50 px-2 py-0.5 rounded-full"><XCircle size={12} /> Rejected</span>
+      default:
+        return <span className="inline-flex items-center gap-1 text-amber-600 font-bold text-xs bg-amber-50 px-2 py-0.5 rounded-full"><Clock size={12} /> Pending</span>
     }
   }
 
@@ -153,29 +179,66 @@ export const ProfilePage = () => {
         <p className="mt-1 text-sm text-slate-500">
           Upload your verification documents (UI ready; backend endpoint pending for persistent storage).
         </p>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {requiredDocs.map((label) => {
-            const uploaded = documents.find((item) => item.label === label)
+        <div className="mt-4 grid gap-6 md:grid-cols-2">
+          {requiredDocs.map(({ label, type }) => {
+            const doc = userDocs.find((d) => d.documentType === type)
             return (
-              <label key={label} className="cursor-pointer rounded-xl border border-dashed border-slate-300 p-4">
-                <p className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
-                  <IdCard size={15} />
-                  {label}
-                </p>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <Upload size={14} />
-                  <span>{uploaded ? uploaded.fileName : 'Choose file to upload'}</span>
+              <div key={type} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/50 p-5 transition-all hover:bg-white hover:shadow-xl">
+                <div className="flex items-center justify-between">
+                  <p className="flex items-center gap-2 font-bold text-slate-900">
+                    <IdCard size={18} className="text-indigo-600" />
+                    {label}
+                  </p>
+                  {doc && getStatusBadge(doc.status)}
                 </div>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(event) => uploadDocument(label, event.target.files?.[0])}
-                />
-              </label>
+
+                {doc ? (
+                  <div className="space-y-3">
+                    <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-slate-200 bg-white">
+                      <img src={doc.documentUrl} alt={label} className="h-full w-full object-cover" />
+                      <a 
+                        href={doc.documentUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="absolute right-2 top-2 rounded-lg bg-black/50 p-1.5 text-white backdrop-blur-md hover:bg-black/70 transition-colors"
+                      >
+                        <ExternalLink size={16} />
+                      </a>
+                    </div>
+                    {doc.status === 'rejected' && doc.rejectionReason && (
+                      <p className="text-xs text-rose-500 font-medium bg-rose-50 p-2 rounded-lg italic">
+                        Reason: {doc.rejectionReason}
+                      </p>
+                    )}
+                    <label className="inline-block cursor-pointer text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+                      Re-upload Document
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(event) => uploadDocument(type, label, event.target.files?.[0])}
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <label className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white transition-colors hover:border-indigo-400 hover:bg-indigo-50/30">
+                    <div className="rounded-full bg-indigo-50 p-2 text-indigo-600 mb-2">
+                      <Upload size={20} />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-600 text-center px-4">Click to upload your {label}</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(event) => uploadDocument(type, label, event.target.files?.[0])}
+                    />
+                  </label>
+                )}
+              </div>
             )
           })}
         </div>
+
       </article>
     </section>
   )

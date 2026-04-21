@@ -22,35 +22,39 @@ export const vehicleStatusEnum = pgEnum("vehicle_status", [
   "inactive",
 ]);
 
-export const vehicles = pgTable("vehicles", {
-  id: serial("id").primaryKey(),
+export const vehicles = pgTable(
+  "vehicles",
+  {
+    id: serial("id").primaryKey(),
 
-  vehicleName: varchar("vehicle_name", { length: 100 }).notNull(),
+    vehicleName: varchar("vehicle_name", { length: 100 }).notNull(),
 
-  vehicleType: vehicleTypeEnum("vehicle_type").notNull(),
+    vehicleType: vehicleTypeEnum("vehicle_type").notNull(),
 
-  vehicleCapacity: integer("vehicle_capacity").notNull(),
+    vehicleCapacity: integer("vehicle_capacity").notNull(),
 
-  pricePerDay: integer("price_per_day").notNull(),
+    pricePerDay: integer("price_per_day").notNull(),
 
-  location: varchar("location", { length: 100 }).notNull(),
+    location: varchar("location", { length: 100 }).notNull(),
 
-  isAvailable: boolean("is_available").notNull().default(true),
+    imageUrl: text("image_url"),
 
-  status: text("status").notNull().default("active"),
+    isAvailable: boolean("is_available").notNull().default(true),
 
-  // JSON-like string
-  features: text("features"),
+    status: text("status").notNull().default("active"),
 
-  imageUrl: text("image_url").notNull().default(""),
+    // JSON-like string
+    features: text("features"),
 
-  vendorId: integer("vendor_id").notNull(),
+    vendorId: integer("vendor_id").notNull(),
 
-  createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at").defaultNow(),
 
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => {
-  return {
-    vendorIdIdx: index("vendor_id_idx").on(table.vendorId),
-  };
-});
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => {
+    return {
+      vendorIdIdx: index("vendor_id_idx").on(table.vendorId),
+    };
+  },
+);

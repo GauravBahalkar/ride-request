@@ -1,28 +1,27 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../hooks/useAuth'
+import { Mail, Lock, ArrowRight, ShieldCheck, Zap, Globe } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
+import { useAuth } from '../../hooks/useAuth'
 import { handleApiError } from '../../utils/handleApiError'
 
 export const LoginPage = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const { login } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
+  const from = location.state?.from || '/'
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     try {
       setLoading(true)
-      setError('')
-      const loggedInUser = await login(email, password)
-      const redirectTo = loggedInUser.role === 'vendor' ? '/vendor' : '/'
-      navigate((location.state as { from?: string } | undefined)?.from ?? redirectTo)
-    } catch (err: any) {
-      setError(err.message || 'Invalid login credentials.')
+      await login(email, password)
+      navigate(from)
+    } catch (err) {
       handleApiError(err)
     } finally {
       setLoading(false)
@@ -30,38 +29,114 @@ export const LoginPage = () => {
   }
 
   return (
-    <section className="page-enter mx-auto mt-16 max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="mb-1 text-2xl font-bold text-slate-900">Welcome back</h1>
-      <p className="mb-6 text-sm text-slate-600">Login to book your next ride.</p>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="Email"
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-        <input
-          type="password"
-          required
-          minLength={8}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          placeholder="Password"
-          className="w-full rounded-lg border border-slate-300 px-3 py-2"
-        />
-        {error && <p className="text-sm text-rose-600">{error}</p>}
-        <Button className="w-full" type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </Button>
-      </form>
-      <p className="mt-4 text-sm text-slate-600">
-        No account?{' '}
-        <Link to="/signup" className="font-medium text-slate-900">
-          Create one
-        </Link>
-      </p>
-    </section>
+    <div className="flex min-h-screen items-stretch bg-white">
+      {/* Left Side: Illustration & Branding */}
+      <div className="relative hidden w-1/2 overflow-hidden bg-slate-900 lg:block">
+        <div className="absolute inset-0 z-0 opacity-20">
+          <img 
+            src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=2000" 
+            alt="Luxury Car" 
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="relative z-10 flex h-full flex-col justify-between p-16 text-white">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="grid h-12 w-12 place-content-center rounded-2xl bg-indigo-600 text-xl font-black shadow-2xl shadow-indigo-500/40">R</div>
+            <span className="text-3xl font-black tracking-tight">Ride-Request</span>
+          </Link>
+          
+          <div className="space-y-10">
+            <h2 className="text-5xl font-black leading-tight">
+              Reinventing <br />
+              <span className="text-indigo-400">Mobility Solutions.</span>
+            </h2>
+            <div className="space-y-6">
+              {[
+                { icon: <ShieldCheck className="text-emerald-400" />, text: 'Verified Listings & Documents' },
+                { icon: <Zap className="text-amber-400" />, text: 'Instant Booking Confirmation' },
+                { icon: <Globe className="text-blue-400" />, text: 'Available Across Major Cities' }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 text-lg font-medium text-slate-300">
+                  {item.icon}
+                  {item.text}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-sm font-medium text-slate-500">
+            © {new Date().getFullYear()} Ride-Request India. Professional Grade Vehicle Marketplace.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side: Login Form */}
+      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
+        <div className="w-full max-w-md space-y-8">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-black text-slate-900">Welcome Back</h1>
+            <p className="text-lg font-medium text-slate-500">Login to access your premium dashboard.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-sm font-bold text-slate-700">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    required
+                    type="email"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 pl-12 pr-4 outline-none transition-all focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-bold text-slate-700">Password</label>
+                  <a href="#" className="text-xs font-bold text-indigo-600 hover:underline">Forgot password?</a>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    required
+                    type="password"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 pl-12 pr-4 outline-none transition-all focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-14 w-full rounded-2xl bg-indigo-600 text-lg font-bold shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.98]"
+            >
+              {loading ? 'Authenticating...' : (
+                <span className="flex items-center justify-center gap-2">
+                  Sign In <ArrowRight size={20} />
+                </span>
+              )}
+            </Button>
+          </form>
+
+          <div className="text-center">
+            <p className="text-sm font-medium text-slate-500">
+              Don't have an account?{' '}
+              <Link to="/signup" className="font-bold text-indigo-600 hover:underline">
+                Create an account
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

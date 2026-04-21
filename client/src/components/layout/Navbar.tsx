@@ -19,29 +19,26 @@ export const Navbar = () => {
           <span className="grid h-8 w-8 place-content-center rounded-xl bg-indigo-600 text-xs font-bold text-white">
             R
           </span>
-          <span className="text-lg font-semibold text-slate-900">RentDrive</span>
+          <span className="text-lg font-bold tracking-tight text-slate-900">Ride-Request</span>
         </Link>
         <div className="hidden items-center gap-8 text-sm font-medium text-slate-500 md:flex">
-          {(!user || user.role === 'customer') && (
-            <>
-              <NavLink 
-                to="/" 
-                className={({ isActive }) => 
-                  `transition-colors hover:text-indigo-600 ${isActive ? 'text-indigo-600' : ''}`
-                }
-              >
-                Home
-              </NavLink>
-              <NavLink 
-                to="/vehicles" 
-                className={({ isActive }) => 
-                  `transition-colors hover:text-indigo-600 ${isActive ? 'text-indigo-600' : ''}`
-                }
-              >
-                Vehicles
-              </NavLink>
-            </>
-          )}
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => 
+              `transition-colors hover:text-indigo-600 ${isActive ? 'text-indigo-600' : ''}`
+            }
+          >
+            Home
+          </NavLink>
+
+          <NavLink 
+            to="/vehicles" 
+            className={({ isActive }) => 
+              `transition-colors hover:text-indigo-600 ${isActive ? 'text-indigo-600' : ''}`
+            }
+          >
+            Vehicles
+          </NavLink>
 
           {user?.role === 'customer' && (
             <>

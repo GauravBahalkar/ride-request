@@ -111,6 +111,7 @@ export const getProfileService = async (userId: number) => {
         email: users.email,
         role: users.role,
         mobileNo: users.mobileNo,
+        profilePhoto: users.profilePhoto,
         createdAt: users.createdAt,
       })
       .from(users)

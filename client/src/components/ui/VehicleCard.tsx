@@ -21,7 +21,7 @@ export const VehicleCard = ({ vehicle, onBook, onView, compact = false }: Props)
     >
       <div className="relative cursor-pointer overflow-hidden">
         <img 
-          src={vehicle.imageUrl} 
+          src={vehicle.imageUrl || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800'} 
           alt={vehicle.vehicleName} 
           className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-110" 
         />

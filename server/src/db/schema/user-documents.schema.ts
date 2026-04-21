@@ -21,7 +21,7 @@ export const userDocuments = pgTable(
       .references(() => users.id)
       .notNull(),
     documentType: documentTypeEnum("document_type").notNull(),
-    documentnUrl: text("document_url").notNull(),
+    documentUrl: text("document_url").notNull(),
     status: statusEnum("status").notNull(),
     rejectionReason: text("rejection_reason"),
     createdAt: timestamp("created_at").defaultNow(),

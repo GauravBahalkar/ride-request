@@ -12,6 +12,7 @@ import MyRequestsPage from '../pages/user/MyRequestsPage'
 import MyBookingsPage from '../pages/user/MyBookingsPage'
 import { VehicleDetailsPage } from '../pages/user/VehicleDetailsPage'
 import { VendorDashboardPage } from '../pages/vendor/VendorDashboardPage'
+import { VendorHomePage } from '../pages/vendor/VendorHomePage'
 import { ProtectedRoute } from './ProtectedRoute'
 
 import { UnauthorizedPage } from '../pages/UnauthorizedPage'
@@ -24,17 +25,17 @@ export const AppRoutes = () => {
     <Routes>
       <Route
         path="/login"
-        element={user ? <Navigate to={user.role === 'vendor' ? '/vendor' : '/'} /> : <LoginPage />}
+        element={user ? <Navigate to="/" /> : <LoginPage />}
       />
       <Route
         path="/signup"
         element={
-          user ? <Navigate to={user.role === 'vendor' ? '/vendor' : '/'} /> : <SignupPage />
+          user ? <Navigate to="/" /> : <SignupPage />
         }
       />
 
       <Route element={<AppLayout />}>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={user?.role === 'vendor' ? <VendorHomePage /> : <HomePage />} />
         <Route path="/vehicles" element={<VehiclesPage />} />
         <Route path="/vehicles/:vehicleId" element={<VehicleDetailsPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
